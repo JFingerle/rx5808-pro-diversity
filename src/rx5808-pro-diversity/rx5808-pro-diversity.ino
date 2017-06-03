@@ -192,6 +192,7 @@ SIGNAL(TIMER0_COMPA_vect)
 		*/
 	}
 }
+#endif
 
 
 
@@ -207,7 +208,6 @@ typedef enum
 	BUTTON_STATE_TRIPLE_CLICK,
 } ButtonState;
 
-#define KEY_DEBOUNCE    100
 #define LONG_CLICK      500
 #define VERY_LONG_CLICK 2000
 #define DOUBLE_CLICK    200
@@ -279,7 +279,6 @@ bool is_button_2 = false;
 
 
 
-#endif
 
 // SETUP ----------------------------------------------------------------------------
 void setup()
@@ -1402,6 +1401,9 @@ void stateManualSeek()
             (time_screen_saver != 0 && time_screen_saver + (SCREENSAVER_TIMEOUT*1000) < millis())) {
             state = STATE_SCREEN_SAVER;
         }
+#endif
+#ifndef USE_VOLTAGE_MONITORING
+#define voltage 0
 #endif
         drawScreen.updateSeekMode(state, channelIndex, channel, rssi, pgm_read_word_near(channelFreqTable + channelIndex), rssi_seek_threshold, seek_found, voltage);
     }
