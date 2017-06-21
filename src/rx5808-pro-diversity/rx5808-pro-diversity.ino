@@ -40,11 +40,11 @@ SOFTWARE.
 
 // uncomment depending on the display you are using.
 // this is an issue with the arduino preprocessor
-#ifdef TVOUT_SCREENS
+#ifdef DUMMY_SCREENS
+#elif defined TVOUT_SCREENS
 #include <TVout.h>
 #include <fontALL.h>
-#endif
-#ifdef OLED_128x64_ADAFRUIT_SCREENS
+#elif defined OLED_128x64_ADAFRUIT_SCREENS
 
 	#ifdef SH1106
 		#include <Adafruit_SH1106.h>

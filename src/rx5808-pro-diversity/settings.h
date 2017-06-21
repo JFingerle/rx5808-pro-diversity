@@ -29,6 +29,8 @@ SOFTWARE.
 
 // Choose the display you will be using
 // you will also have to uncomment the includes in the main project.
+//#define DEBUG
+//#define DUMMY_SCREENS
 #define TVOUT_SCREENS
 //#define OLED_128x64_ADAFRUIT_SCREENS
 

@@ -90,4 +90,49 @@ class screens
         void save(uint8_t mode, uint8_t channelIndex, uint16_t channelFrequency, const char *call_sign);
         void updateSave(const char *msg);
 };
+
+
+#ifdef DUMMY_SCREENS
+screens::screens(){}
+char screens::begin(const char *call_sign){}
+void screens::flip(){}
+
+// MAIN MENU
+void screens::mainMenu(uint8_t menu_id){}
+
+// SEEK & MANUAL MODE
+void screens::seekMode(uint8_t state){} // seek and manual mode
+void screens::updateSeekMode(uint8_t state, uint8_t channelIndex, uint8_t channel, uint8_t rssi, uint16_t channelFrequency, uint8_t rssi_seek_threshold, bool locked,uint16_t votlage){} // seek and manual mode
+
+// BAND SCAN
+void screens::bandScanMode(uint8_t state){}
+void screens::updateBandScanMode(bool in_setup, uint8_t channel, uint8_t rssi, uint8_t channelName, uint16_t channelFrequency, uint16_t rssi_setup_min_a, uint16_t rssi_setup_max_a){}
+
+// SCREEN SAVER
+void screens::screenSaver(uint8_t channelName, uint16_t channelFrequency, const char *call_sign){}
+void screens::screenSaver(uint8_t diversity_mode, uint8_t channelName, uint16_t channelFrequency, const char *call_sign){}
+void screens::updateScreenSaver(uint8_t rssi){}
+void screens::updateScreenSaver(char active_receiver, uint8_t rssi, uint8_t rssiA, uint8_t rssiB){} // diversity
+#ifdef USE_VOLTAGE_MONITORING
+void screens::updateVoltageScreenSaver(int voltage, bool alarm){}
+#endif
+
+// DIVERSITY
+void screens::diversity(uint8_t diversity_mode){}
+void screens::updateDiversity(char active_receiver, uint8_t rssiA, uint8_t rssiB){}
+
+// VOLTAGE MENU
+#ifdef USE_VOLTAGE_MONITORING
+void screens::voltage(uint8_t menu_id, int voltage_calibration, uint8_t warning_voltage, uint8_t critical_voltage){}
+void screens::updateVoltage(int voltage){}
+#endif
+
+// SETUP MENU
+void screens::setupMenu(){}
+void screens::updateSetupMenu(uint8_t menu_id,bool settings_beeps,bool settings_orderby_channel, const char *call_sign, char editing){}
+
+// SAVE
+void screens::save(uint8_t mode, uint8_t channelIndex, uint16_t channelFrequency, const char *call_sign){}
+void screens::updateSave(const char *msg){}
+#endif
 #endif
