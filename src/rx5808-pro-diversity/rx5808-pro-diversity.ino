@@ -130,7 +130,7 @@ uint8_t writePos = 0;
 uint8_t man_channel = 0;
 uint8_t last_channel_index = 0;
 uint8_t force_seek=0;
-uint8_t seek_direction=1;
+int8_t seek_direction=1;
 unsigned long time_of_tune = 0;        // will store last time when tuner was changed
 unsigned long time_screen_saver = 0;
 unsigned long time_next_payload = 0;
@@ -1180,6 +1180,11 @@ void stateScanMode()
     }
 }
 
+#define PEAK_LOOKAHEAD 4
+uint8_t peaks[PEAK_LOOKAHEAD] = {0};
+int  peak_chan_start = 0;
+boolean peak_scan = false;
+
 void stateManualSeek()
 {
     /*****************************************/
@@ -1248,12 +1253,55 @@ void stateManualSeek()
             // recalculate rssi_seek_threshold
             ((int)((float)rssi_best * (float)(RSSI_SEEK_THRESHOLD/100.0)) > rssi_seek_threshold) ? (rssi_seek_threshold = (int)((float)rssi_best * (float)(RSSI_SEEK_THRESHOLD/100.0))) : false;
 
-            if(!seek_found) // search if not found
+            if (force_seek)
             {
-                if ((!force_seek) && (rssi > rssi_seek_threshold)) // check for found channel
+                peak_scan = false;
+                seek_found = 0;
+            }
+
+            if (!seek_found) // search if not found
+            {
+
+                if ((!force_seek) && (rssi > rssi_seek_threshold || peak_scan)) // check for found channel
                 {
-                    seek_found=1;
-                    time_screen_saver=millis();
+                    if (!peak_scan)
+                    {
+                        peak_scan = true;
+                        peak_chan_start = channel;
+                        for (uint8_t i = 0; i < PEAK_LOOKAHEAD; ++i)
+                            peaks[i] = 0;
+                    }
+
+                    if (peak_scan)
+                    {
+                        uint8_t peak_index = 0;
+                        if (-1 == seek_direction)
+                            peak_index = peak_chan_start - channel;
+                        else
+                            peak_index = channel - peak_chan_start;
+
+                        peaks[peak_index] = rssi;
+
+                        if (channel >= CHANNEL_MAX || channel <= CHANNEL_MIN || peak_index == (PEAK_LOOKAHEAD-1))
+                        {
+                            peak_scan = false;
+                            seek_found = 1;
+                            int max_peak_idx = 0;
+                            for (int i = 0; i < PEAK_LOOKAHEAD; ++i)
+                            {                      
+                                if (peaks[max_peak_idx] < peaks[i])
+                                    max_peak_idx = i;
+                            }
+                            channel = peak_chan_start + (int(max_peak_idx) * seek_direction);
+
+                            time_screen_saver = millis();      
+                        }
+                        else
+                        {
+                            channel += seek_direction;
+                        }
+                        channelIndex = pgm_read_byte_near(channelList + channel);
+                    }
                 }
                 else
                 { // seeking itself
