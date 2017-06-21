@@ -163,7 +163,7 @@ SOFTWARE.
 // 75% threshold, when channel is printed in spectrum
 #define RSSI_SEEK_FOUND 75
 // 80% under max value for RSSI
-#define RSSI_SEEK_TRESHOLD 80
+#define RSSI_SEEK_THRESHOLD 80
 // scan loops for setup run
 #define RSSI_SETUP_RUN 3
 
