@@ -222,11 +222,17 @@ typedef struct _Button
 }Button;
 
 Button buttons[] = {
+#ifdef EACHINE_VRD2
 	{eachineVRD2ButtonPin, 0, 0, 0, 0}, // button 1
 	{eachineVRD2ButtonPin, 0, 0, 0, 0}, // butotn 2
+#else
+	{buttonDown, 0, 0, 0, 0}, // butotn 1
+	{buttonUp, 0, 0, 0, 0}, // butotn 2
+	{buttonSelect, 0, 0, 0, 0}, // butotn 3
+#endif
 };
 
-bool is_button_2 = false;
+
 
 bool checkButtonState(int buttonIndex, int state, boolean clear)
 {
@@ -242,7 +248,10 @@ bool checkButtonState(int buttonIndex, int state, boolean clear)
 
 #define BUTTON1 0
 #define BUTTON2 1
+#define BUTTON3 2
 
+#ifdef EACHINE_VRD2
+bool is_button_2 = false;
 #define isPrevBtnClick() checkButtonState(BUTTON2, BUTTON_STATE_CLICK, true)
 #define isNextBtnClick() checkButtonState(BUTTON1, BUTTON_STATE_CLICK, true)
 #define isSelectBtnClick() checkButtonState(BUTTON1, BUTTON_STATE_LONG_CLICK, true)
@@ -252,6 +261,17 @@ bool checkButtonState(int buttonIndex, int state, boolean clear)
 #define peekNextBtnClick() checkButtonState(BUTTON1, BUTTON_STATE_CLICK, false)
 #define peekSelectClick() checkButtonState(BUTTON1, BUTTON_STATE_LONG_CLICK, false)
 #define peekCancelClick() checkButtonState(BUTTON2, BUTTON_STATE_LONG_CLICK, false)
+#else
+#define isPrevBtnClick() checkButtonState(BUTTON2, BUTTON_STATE_CLICK, true)
+#define isNextBtnClick() checkButtonState(BUTTON1, BUTTON_STATE_CLICK, true)
+#define isSelectBtnClick() checkButtonState(BUTTON3, BUTTON_STATE_CLICK, true)
+#define isCancelBtnClick() checkButtonState(BUTTON3, BUTTON_STATE_LONG_CLICK, true)
+
+#define peekPrevBtnClick() checkButtonState(BUTTON2, BUTTON_STATE_CLICK, false)
+#define peekNextBtnClick() checkButtonState(BUTTON1, BUTTON_STATE_CLICK, false)
+#define peekSelectClick() checkButtonState(BUTTON3, BUTTON_STATE_CLICK, false)
+#define peekCancelClick() checkButtonState(BUTTON3, BUTTON_STATE_LONG_CLICK, false)
+#endif
 // fr short press = next chan, menu down
 // ch short press = prev chan, menu up
 // fr long press  = menu/ok/select
@@ -278,8 +298,10 @@ void setup()
     TIMSK0 |= _BV(OCIE0A);
     digitalWrite(buzzer, LOW);
 #endif
+#ifdef EACHINE_VRD2
 #ifdef VIDEO_SWITCH_TOGGLE
   pinMode(videoSwitchButton, OUTPUT);
+#endif
 #endif
 
     // minimum control pins
@@ -289,15 +311,26 @@ void setup()
     pinMode(buttonMode, INPUT);
     digitalWrite(buttonMode, INPUT_PULLUP);
     */
+#ifdef EACHINE_VRD2
  	pinMode(sevenSegDigit2Pin, OUTPUT);
     digitalWrite(sevenSegDigit2Pin, HIGH);
     pinMode(sevenSegDigit1Pin, OUTPUT);
     digitalWrite(sevenSegDigit1Pin, HIGH);
+#endif
 
-    
-  
+#ifdef EACHINE_VRD2
 	pinMode(eachineVRD2ButtonPin , INPUT);
 	digitalWrite(eachineVRD2ButtonPin, INPUT_PULLUP);
+#else
+  pinMode(buttonDown , INPUT);
+  digitalWrite(buttonDown, INPUT_PULLUP);
+  pinMode(buttonUp , INPUT);
+  digitalWrite(buttonUp, INPUT_PULLUP);
+  pinMode(buttonSelect , INPUT);
+  digitalWrite(buttonSelect, INPUT_PULLUP);
+  pinMode(buttonCancel , INPUT);
+  digitalWrite(buttonCancel, INPUT_PULLUP);
+#endif
     // optional control
     /*
     pinMode(buttonDown, INPUT);
@@ -317,8 +350,10 @@ void setup()
 	pinMode(spiClockPin, OUTPUT);
 
 	digitalWrite(slaveSelectPin, HIGH);
+#ifdef EACHINE_VRD2
   	digitalWrite(switchRegClockPin, LOW);
   	digitalWrite(switchRegDataPin, LOW);
+#endif
   
     // use values only of EEprom is not 255 = unsaved
     uint8_t eeprom_check = EEPROM.read(EEPROM_ADR_STATE);
@@ -394,7 +429,9 @@ void setup()
         while (true) { // stay in ERROR for ever
             digitalWrite(led, !digitalRead(led));
             digitalWrite(receiverA_led, digitalRead(led));
+#ifdef USE_DIVERSITY
             digitalWrite(receiverB_led, digitalRead(led));
+#endif
             delay(100);
         }
     }
@@ -417,15 +454,17 @@ void setup()
 #endif
     // Setup Done - Turn Status LED off.
     digitalWrite(led, LOW);
-    //Serial.begin(57600);
-    //Serial.println(F("begin"));
-
+#ifdef DEBUG
+    Serial.begin(57600);
+    Serial.println(F("begin"));
+#endif
 }
 
 
 // LOOP ----------------------------------------------------------------------------
 void loop()
 {
+#ifdef EACHINE_VRD2
 #ifdef VIDEO_SWITCH_TOGGLE
   uint32_t now = millis();
   if (1000 + VIDEO_SWITCH_TOGGLE + 200 < now)
@@ -440,7 +479,8 @@ void loop()
   {
   	digitalWrite(videoSwitchButton, HIGH);
   }
-  
+
+#endif
 #endif
 	processButtons(false);
 
@@ -465,9 +505,11 @@ void loop()
 		case STATE_MODE_MENU:
 			stateModeMenu();   // done
 			break;
+#ifdef USE_DIVERSITY
     	case STATE_DIVERSITY:
 			stateDiversity();  // done
 			break;
+#endif
 		case STATE_MANUAL:
 		case STATE_SEEK:
 			stateManualSeek(); // done
@@ -515,6 +557,7 @@ void loop()
 /*   SUB ROUTINES  */
 /*******************/
 
+#ifdef EACHINE_VRD2
 #define SEVEN_SEG_0 B11111100
 #define SEVEN_SEG_1 B01100000
 #define SEVEN_SEG_2 B11011010
@@ -608,6 +651,7 @@ void updateSevenSegDisplay()
 		digitalWrite(sevenSegDigit2Pin, LOW);   // second digit on
 	}
 }
+#endif
 
 void processButton(int buttonIndex, boolean handleMultiClicks)
 {		
@@ -703,6 +747,7 @@ void processButton(int buttonIndex, boolean handleMultiClicks)
 
 void processButtons(boolean handleMultiClicks)
 {
+#ifdef EACHINE_VRD2
 	updateSevenSegDisplay();
 	
 	if (is_button_2)
@@ -713,7 +758,11 @@ void processButtons(boolean handleMultiClicks)
 	{
 		processButton(BUTTON1, handleMultiClicks);
 	}
-
+#else
+	processButton(BUTTON1, handleMultiClicks);
+	processButton(BUTTON2, handleMultiClicks);
+	processButton(BUTTON3, handleMultiClicks);
+#endif
 }
 
 void stateModeMenu()

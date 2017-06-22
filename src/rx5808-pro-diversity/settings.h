@@ -46,6 +46,7 @@ SOFTWARE.
 //#define USE_IR_EMITTER
 //#define USE_FLIP_SCREEN
 //#define USE_BOOT_LOGO
+#define EACHINE_VRD2
 // You can use any of the arduino analog pins to measure the voltage of the battery
 #define USE_VOLTAGE_MONITORING
 // Choose if you wish to use 8 additional Channels
@@ -60,8 +61,7 @@ SOFTWARE.
 #define rx5808
 //#define rx5880
 
-#define USE_TWO_DIGIT_SWITCH_REG
-#ifdef USE_TWO_DIGIT_SWITCH_REG
+#ifdef EACHINE_VRD2
 #define switchRegDataPin 10
 #define switchRegClockPin 12
 #endif
@@ -128,19 +128,21 @@ SOFTWARE.
     #define WARNING_BEEPS 2
 #endif
 
+#ifdef EACHINE_VRD2
 #define sevenSegDigit1Pin 2
 #define sevenSegDigit2Pin 3
 
 // eachine vr d2 button pin
 #define eachineVRD2ButtonPin 4
-
+#else
 
 // this two are minimum required
-#define buttonDown 2
-#define buttonUp 4
+#define buttonDown 4
+#define buttonUp 2
 // optional comfort buttons
 #define buttonSelect 3
-#define buttonCancel 5
+#define buttonCancel 3
+#endif
 
 // Buzzer
 #define PASSIVE_BUZZER // set if not using active buzzer
