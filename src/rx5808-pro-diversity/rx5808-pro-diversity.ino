@@ -223,12 +223,12 @@ typedef struct _Button
 
 Button buttons[] = {
 #ifdef EACHINE_VRD2
-	{eachineVRD2ButtonPin, 0, 0, 0, 0}, // button 1
-	{eachineVRD2ButtonPin, 0, 0, 0, 0}, // butotn 2
+	{eachineVRD2ButtonPin, BUTTON_STATE_NONE, 0, 0, 0}, // button 1
+	{eachineVRD2ButtonPin, BUTTON_STATE_NONE, 0, 0, 0}, // butotn 2
 #else
-	{buttonDown, 0, 0, 0, 0}, // butotn 1
-	{buttonUp, 0, 0, 0, 0}, // butotn 2
-	{buttonSelect, 0, 0, 0, 0}, // butotn 3
+	{buttonDown, BUTTON_STATE_NONE, 0, 0, 0}, // butotn 1
+	{buttonUp, BUTTON_STATE_NONE, 0, 0, 0}, // butotn 2
+	{buttonSelect, BUTTON_STATE_NONE, 0, 0, 0}, // butotn 3
 #endif
 };
 
